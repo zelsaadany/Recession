@@ -128,7 +128,8 @@ print((T,p)) # T = 121.0, p = 0.02182... // NOTE: Brilliant! we obtain exactly t
 # Histograms: a first glance at our spending data, one for 2008 other for 2009 // see: https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.stats.wilcoxon.html
 #
 
-"""
+# @DEBUGGING:@TODO:@2019-08-13: we get error: "ImportError: No module named _tkinter, please install the python-tk package", so we need to install python-tk via pip, USAGE: "sudo pip install python-tk"
+
 import random
 import numpy
 from matplotlib import pyplot
@@ -142,4 +143,3 @@ pyplot.hist(x, bins, alpha=0.5, label='x')
 pyplot.hist(y, bins, alpha=0.5, label='y')
 pyplot.legend(loc='upper right')
 pyplot.show()
-"""
