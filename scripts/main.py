@@ -1,8 +1,22 @@
+## 
+## Imports (dependencies, see: pip) 
+## 
+
 from scipy import stats
 import numpy as np
 import csv
 import pprint
 import copy
+from matplotlib import pyplot
+
+### 
+### Functions (modules)
+### 
+
+
+###
+### Main
+###
 
 #
 # NOTE: indent using spaces, one indent = 4 * spaces
@@ -104,3 +118,28 @@ print((T,p)) # T = 121.0, p = 0.02182... // NOTE: the p-value in the dummy set i
 T, p = stats.wilcoxon(x=delta_2008_to_2009_arr, y=None, zero_method='wilcox', correction=False)
 
 print((T,p)) # T = 121.0, p = 0.02182... // NOTE: Brilliant! we obtain exactly the same T and p values, which confirms the behaviour of the wilcoxon package is entirely consistent.
+
+
+##
+## Plotting the data
+##
+
+#
+# Histograms: a first glance at our spending data, one for 2008 other for 2009 // see: https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.stats.wilcoxon.html
+#
+
+"""
+import random
+import numpy
+from matplotlib import pyplot
+
+x = [random.gauss(3,1) for _ in range(400)]
+y = [random.gauss(4,2) for _ in range(400)]
+
+bins = numpy.linspace(-10, 10, 100)
+
+pyplot.hist(x, bins, alpha=0.5, label='x')
+pyplot.hist(y, bins, alpha=0.5, label='y')
+pyplot.legend(loc='upper right')
+pyplot.show()
+"""
