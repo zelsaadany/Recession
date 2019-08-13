@@ -25,3 +25,10 @@
    - pip install matplotlib
  
  - Operating System. Any operating system should work, but the pipeline was only tested on Ubuntu (version: Artful Aardvark).
+
+
+#
+# Notes
+#
+
+@TODO:@ANDY:make sure to tell zainab about ssh keys to save hassle, and show her the p-values and plots when they're done
