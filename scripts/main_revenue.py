@@ -23,12 +23,12 @@ import pdb
 # NOTE: indent using spaces, one indent = 4 * spaces
 #
 
-# @TODO: make two extra fields in the data dictionary (database): for revenue to adjust with and both for 2008 and 2009
+# @TODO: make two extra fields in the data dictionary (database): for Marketing Expenditure to adjust with and both for 2008 and 2009
 
 #
 # Import data as csv object in numpy
 #
-with open("../data/zainab_data_revenue_actual.csv") as fi:
+with open("../../../zainab/Recession/data/zainab_data_marketing_actual.csv") as fi:
     rows = list(csv.reader(fi, delimiter=','))
 
 
@@ -52,7 +52,8 @@ for i,row in enumerate(rows):
     company_name = str(row[0])  # e.g. "Company_1"
     money_2008 = float(row[1])
     money_2009 = float(row[2])
-    delta_2008_to_2009 = money_2008 - money_2009
+
+    delta_2008_to_2009 = money_2008 - money_2009  # @DEBUGGING: if things go wrong try and use copy.copy()
 
     liquidable_2008 = float(row[4])
     liquidable_2009 = float(row[5])
@@ -104,7 +105,9 @@ n_companies = copy.copy(i)
 company_names_vec = data.keys()  # since each key maps to a name of a company as str
 money_2008_vec = [data[i]["money 2008"] for i in company_names_vec] # e.g. [[-1944.0], [1493.0], [2430.0], [-1247.0], [-1323.0], [-2007.0], [-2408.0], [-2248.0], [-2402.0], [-1266.0], [901.0], [-3384.0], [1382.0], [-1666.0], [-1653.0], [1087.0], [-3306.0], [-2070.0], [-1441.0], [560.0], [-452.0], [348.0], [273.0], [2142.0], [-1921.0], [-641.0], [-2305.0], [2875.0], [-2024.0], [-1784.0]]
 money_2009_vec = [data[i]["money 2009"] for i in company_names_vec]
-#delta_2008_to_2009_vec = [data[i]["delta"] for i in company_names_vec]
+
+delta_2008_to_2009_vec = [data[i]["delta"] for i in company_names_vec]
+
 money_2008_adj_vec = [data[i]["money_2008_adj"] for i in company_names_vec] # e.g. [[-1944.0], [1493.0], [2430.0], [-1247.0], [-1323.0], [-2007.0], [-2408.0], [-2248.0], [-2402.0], [-1266.0], [901.0], [-3384.0], [1382.0], [-1666.0], [-1653.0], [1087.0], [-3306.0], [-2070.0], [-1441.0], [560.0], [-452.0], [348.0], [273.0], [2142.0], [-1921.0], [-641.0], [-2305.0], [2875.0], [-2024.0], [-1784.0]]
 money_2009_adj_vec = [data[i]["money_2009_adj"] for i in company_names_vec]
 
@@ -114,16 +117,22 @@ money_2009_adj_vec = [data[i]["money_2009_adj"] for i in company_names_vec]
 company_names_arr = np.array(company_names_vec)
 money_2008_arr = np.array(money_2008_vec)
 money_2009_arr = np.array(money_2009_vec)
-#delta_2008_to_2009_arr = np.array(delta_2008_to_2009_vec)
+
+delta_2008_to_2009_arr = np.array(delta_2008_to_2009_vec)   # @1852
+
 money_2008_adj_arr = np.array(money_2008_adj_vec) 
 money_2009_adj_arr = np.array(money_2009_adj_vec)
 
 # flatten the lists, since each element i in each and every list (except for company_names_arr) here is a single-element list, e.g. [-1784.0], so flatten to remove unecessary list wrapper 
 money_2008_arr = money_2008_arr.flatten()
 money_2009_arr = money_2009_arr.flatten()
-#delta_2008_to_2009_arr = delta_2008_to_2009_arr.flatten()
+
+delta_2008_to_2009_arr = delta_2008_to_2009_arr.flatten()    # @1852
+
 money_2008_adj_arr = money_2008_adj_arr.flatten() 
 money_2009_adj_arr = money_2009_adj_arr.flatten()
+
+
 
 ##
 ## STATISTICAL TESTING
@@ -168,14 +177,14 @@ else:
     print("Woops, your p-value is greater than 0.05. The null hypothesis cannot be rejected, given the current alpha setting.")
 
 
-#######################################################################
+#############################################################
 
 ##
 ## Plotting the data
 ##
 
 #
-# Histograms: a first glance at our Revenue data, one for 2008 other for 2009 // see: https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.stats.wilcoxon.html
+# Histograms: a first glance at our Marketing Expenditure data, one for 2008 other for 2009 // see: https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.stats.wilcoxon.html
 #
 
 """
@@ -190,45 +199,75 @@ from matplotlib import pyplot
 # x = [random.gauss(2,1) for _ in range(400)]
 # y = [random.gauss(5,0.5) for _ in range(400)]
 
+# histogram on non-log scale
+# this uses equal bin sizes that gets swarfed by high dynamic range
 
+# @BINNED MODE MANUAL
 
-# # histogram on non-log scale
-# # this uses equal bin sizes that gets swarfed by high dynamic range
-# bins = np.linspace(0, 100, 50)
+# bins = np.linspace(0, 1000, 50)
 
-# pyplot.hist(money_2008_adj_arr, bins, alpha=0.5, label='Revenue in 2008 (in million GBP)')
-# pyplot.hist(money_2009_adj_arr, bins, alpha=0.5, label='Revenue in 2009 (in million GBP)')
-# pyplot.legend(loc='upper right')
-# pyplot.title("Comparison of Revenue in 2008 vs. 2009")
-# pyplot.xlabel("Revenue (million GBP)")
-# pyplot.ylabel("Frequency")
-# pyplot.show()
-import math
+bins = np.arange(0,5,0.1)  # 0.1 was good @TODO:maybe do this for all, using same range of boxplots to histograms
 
-median_nth_value_2008 = int(math.ceil(len(money_2008_adj_arr)/2.))
-median_2008 = money_2008_adj_arr[median_nth_value]
+# pyplot.hist(money_2008_adj_arr, bins, alpha=0.5, label='Marketing Expenditure in 2008 (in million GBP)')
+# pyplot.hist(money_2009_adj_arr, bins, alpha=0.5, label='Marketing Expenditure in 2009 (in million GBP)')
 
-median_nth_value_2009 = int(math.ceil(len(money_2009_adj_arr)/2.))
-median_2009 = money_2009_adj_arr[median_nth_value]
+# @BINNED MODE AUTO
+pyplot.hist(money_2008_adj_arr, bins, alpha=0.5, label='Marketing Expenditure in 2008 (in million GBP)')
+pyplot.hist(money_2009_adj_arr, bins, alpha=0.5, label='Marketing Expenditure in 2009 (in million GBP)')
 
-pyplot.boxplot([money_2008_adj_arr,money_2009_adj_arr], notch=None, sym=None, vert=None, whis=None, positions=None, widths=None, patch_artist=None, bootstrap=None, usermedians=[median_2008,median_2009], conf_intervals=None, meanline=None, showmeans=True, showcaps=None, showbox=None, showfliers=False, boxprops=None, labels=["2008","2009"], flierprops=None, medianprops=None, meanprops=None, capprops=None, whiskerprops=None, autorange=False, zorder=None, data=None)
-
-pyplot.title("Comparison of revenue distributions in 2008 vs. 2009")
-pyplot.ylabel("Revenue (million GBP)")
+pyplot.title("Comparison of Marketing Expenditure in 2008 vs. 2009")
+pyplot.xlabel("Adjusted Marketing Expenditure (million GBP)")
+pyplot.ylabel("Frequency")
+pyplot.legend(loc='upper right')
 pyplot.show()
 
 
+
+#bins = [0, 50, 100, 150, 200, 250, 300, 350, 400, 450]
+
+# #                  min max how many times do u want to chop up this 100m block
+
+# bins = np.linspace(0, 100, 50)
+
+# pyplot.hist(money_2008_adj_arr, bins , alpha=0.4, label='Marketing Expenditure in 2008 (in million GBP)')
+# pyplot.hist(money_2009_adj_arr, bins , alpha=0.4, label='Marketing Expenditure in 2009 (in million GBP)')
+
+# pyplot.legend(loc='upper right')
+# pyplot.title("Comparison of Marketing Expenditure in 2008 vs. 2009")
+# pyplot.xlabel("Marketing Expenditure (million GBP)")
+# pyplot.ylabel("Frequency")
+# pyplot.show()
+
+
+# ####
+# #### keep this
+# ####
+
+# import math
+
+# median_2008 = np.median(money_2008_adj_arr)
+# median_2009 = np.median(money_2009_adj_arr)
+
+# pyplot.boxplot([money_2008_adj_arr,money_2009_adj_arr], notch=None, sym=None, vert=None, whis=None, positions=None, widths=None, patch_artist=None, bootstrap=None, usermedians=[median_2008,median_2009], conf_intervals=None, meanline=None, showmeans=True, showcaps=None, showbox=None, showfliers=False, boxprops=None, labels=["2008","2009"], flierprops=None, medianprops=None, meanprops=None, capprops=None, whiskerprops=None, autorange=False, zorder=None, data=None)
+
+# pyplot.title("Comparison of Marketing Expenditure distributions in 2008 vs. 2009")
+# pyplot.ylabel("Adjusted Marketing Expenditure (million GBP)")
+# pyplot.show()
 
 # # histogram on log scale. 
 # # Use non-equal bin sizes, such that they look equal on log scale.
 
 # logbins = np.logspace(np.log10(bins[0]),np.log10(bins[-1]),len(bins))
 
-# pyplot.hist(money_2008_arr, bins, alpha=0.5, label='Revenue behaviour in 2008')
-# pyplot.hist(money_2009_arr, bins, alpha=0.5, label='Revenue behaviour in 2009')
+# pyplot.hist(money_2008_arr, bins, alpha=0.5, label='Marketing Expenditure behaviour in 2008')
+# pyplot.hist(money_2009_arr, bins, alpha=0.5, label='Marketing Expenditure behaviour in 2009')
 # pyplot.legend(loc='upper right')
-# pyplot.title("Comparison of Market Revenue in 2008 vs. 2009")
-# pyplot.xlabel("Revenue")
+# pyplot.title("Comparison of Market Marketing Expenditure in 2008 vs. 2009")
+# pyplot.xlabel("Marketing Expenditure")
 # pyplot.ylabel("Frequency ~ PD")
 # pyplot.xscale('log')
 # pyplot.show()
+
+print("HEY IM GOING TO CLOSE THE THING....")
+
+pyplot.close()
