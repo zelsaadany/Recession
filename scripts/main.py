@@ -2,6 +2,7 @@ import scipy
 import numpy as np
 import csv
 import pprint
+import copy
 
 #
 # NOTE: indent using spaces, one indent = 4 * spaces
@@ -52,4 +53,33 @@ for i,row in enumerate(rows):
         data[company_name] = {  "money 2008":[money_2008],\
                                 "money 2009":[money_2009],\
                                 "delta":[delta_2008_to_2009]} # delta = money(2008) - money(2009)
+
+
+
+#
+# Construct the numpy array from the dict datastructure above (so we can input to the wilcoxon rank test and visual functions to get p-value outputs and plotting outputs)
+#
+
+n_companies = copy.copy(i)
+
+# build lists from the dicts above
+
+company_names_vec = data.keys()  # since each key maps to a name of a company as str
+money_2008_vec = [data[i]["money 2008"] for i in company_names_vec] # e.g. [[-1944.0], [1493.0], [2430.0], [-1247.0], [-1323.0], [-2007.0], [-2408.0], [-2248.0], [-2402.0], [-1266.0], [901.0], [-3384.0], [1382.0], [-1666.0], [-1653.0], [1087.0], [-3306.0], [-2070.0], [-1441.0], [560.0], [-452.0], [348.0], [273.0], [2142.0], [-1921.0], [-641.0], [-2305.0], [2875.0], [-2024.0], [-1784.0]]
+money_2009_vec = [data[i]["money 2009"] for i in company_names_vec]
+delta_2008_to_2009_vec = [data[i]["delta"] for i in company_names_vec]
+
+# convert python lists into numpy arrays (1D vector arrays, technically 2D since we need to remove the nested and unecessary list wrappers around each element)
+
+company_names_arr = np.array(company_names_vec)
+money_2008_arr = np.array(money_2008_vec)
+money_2009_arr = np.array(money_2009_vec)
+delta_2008_to_2009_arr = np.array(delta_2008_to_2009_vec)
+
+# flatten the lists, since each element i in each and every list (except for company_names_arr) here is a single-element list, e.g. [-1784.0], so flatten to remove unecessary list wrapper 
+
+company_names_arr = np.array(company_names_vec)
+money_2008_arr = money_2008_arr.flatten()
+money_2009_arr = money_2009_arr.flatten()
+delta_2008_to_2009_arr = delta_2008_to_2009_arr.flatten()
 
