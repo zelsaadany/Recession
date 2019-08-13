@@ -119,6 +119,25 @@ T, p = stats.wilcoxon(x=delta_2008_to_2009_arr, y=None, zero_method='wilcox', co
 
 print((T,p)) # T = 121.0, p = 0.02182... // NOTE: Brilliant! we obtain exactly the same T and p values, which confirms the behaviour of the wilcoxon package is entirely consistent.
 
+#
+# Summary Print
+#
+
+print("Wilcoxon signed-rank test: COMPLETE...")
+
+print("\t"+"Test statistic value computed as: "+str(T))
+print("\t"+"Pr( T_obs_data[/alpha] > T_null) = p-value computed as: "+str(p))
+
+print("###########")
+print("# SUMMARY #")
+print("###########")
+
+if float(p)<0.05:
+
+    print("Congratulations, at a critical value (alpha) corresponding to a p-value threshold of 0.05, we can reject H_null (H0). Since your computed p-value of "+str(p)+" it is less than 0.05") 
+else:
+
+    print("Woops, your p-value is greater than 0.05. The null hypothesis cannot be rejected, given the current alpha setting.")
 
 ##
 ## Plotting the data
@@ -171,8 +190,10 @@ y = [random.gauss(5,0.5) for _ in range(400)]
 
 bins = numpy.linspace(0, 10, 100)
 
-pyplot.hist(x, bins, alpha=0.5, label='Spending in 2008')
-pyplot.hist(y, bins, alpha=0.5, label='Spending in 2009')
+pyplot.hist(x, bins, alpha=0.5, label='Spending behaviour in 2008')
+pyplot.hist(y, bins, alpha=0.5, label='Spending behaviour in 2009')
 pyplot.legend(loc='upper right')
 pyplot.title("Comparison of Market Spending in 2008 vs. 2009")
+pyplot.xlabel("Spending")
+pyplot.ylabel("Frequency ~ PD")
 pyplot.show()
