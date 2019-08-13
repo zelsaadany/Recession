@@ -128,18 +128,51 @@ print((T,p)) # T = 121.0, p = 0.02182... // NOTE: Brilliant! we obtain exactly t
 # Histograms: a first glance at our spending data, one for 2008 other for 2009 // see: https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.stats.wilcoxon.html
 #
 
-# @DEBUGGING:@TODO:@2019-08-13: we get error: "ImportError: No module named _tkinter, please install the python-tk package", so we need to install python-tk via pip, USAGE: "sudo pip install python-tk"
+"""
+# '@DEBUGGING:@DONE:@2019-08-13: we get error: "ImportError: No module named _tkinter, please install the python-tk package", so we need to install python-tk via pip, USAGE: "sudo pip install python-tk"' // @HOWEVER: When trying the above fix we get a bigger error: sudo -H pip install python-tk
+Collecting python-tk
+Exception:
+Traceback (most recent call last):
+  File "/usr/lib/python2.7/dist-packages/pip/basecommand.py", line 215, in main
+    status = self.run(options, args)
+  File "/usr/lib/python2.7/dist-packages/pip/commands/install.py", line 353, in run
+    wb.build(autobuilding=True)
+  File "/usr/lib/python2.7/dist-packages/pip/wheel.py", line 749, in build
+    self.requirement_set.prepare_files(self.finder)
+  File "/usr/lib/python2.7/dist-packages/pip/req/req_set.py", line 380, in prepare_files
+    ignore_dependencies=self.ignore_dependencies))
+  File "/usr/lib/python2.7/dist-packages/pip/req/req_set.py", line 554, in _prepare_file
+    require_hashes
+  File "/usr/lib/python2.7/dist-packages/pip/req/req_install.py", line 278, in populate_link
+    self.link = finder.find_requirement(self, upgrade)
+  File "/usr/lib/python2.7/dist-packages/pip/index.py", line 465, in find_requirement
+    all_candidates = self.find_all_candidates(req.name)
+  File "/usr/lib/python2.7/dist-packages/pip/index.py", line 423, in find_all_candidates
+    for page in self._get_pages(url_locations, project_name):
+  File "/usr/lib/python2.7/dist-packages/pip/index.py", line 568, in _get_pages
+    page = self._get_page(location)
+  File "/usr/lib/python2.7/dist-packages/pip/index.py", line 683, in _get_page
+    return HTMLPage.get_page(link, session=self.session)
+  File "/usr/lib/python2.7/dist-packages/pip/index.py", line 795, in get_page
+    resp.raise_for_status()
+  File "/usr/share/python-wheels/requests-2.18.4-py2.py3-none-any.whl/requests/models.py", line 935, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+HTTPError: 404 Client Error: Not Found for url: https://pypi.org/simple/python-tk/
 
+@DONE:@SOLVED: we need to install python-tk via sudo apt-get not using pip!!! <--- USAGE: sudo apt-get install python-tk // USAGE FOR Python3: sudo apt-get install python3-tk
+
+"""
 import random
 import numpy
 from matplotlib import pyplot
 
-x = [random.gauss(3,1) for _ in range(400)]
-y = [random.gauss(4,2) for _ in range(400)]
+x = [random.gauss(2,1) for _ in range(400)]
+y = [random.gauss(5,0.5) for _ in range(400)]
 
-bins = numpy.linspace(-10, 10, 100)
+bins = numpy.linspace(0, 10, 100)
 
-pyplot.hist(x, bins, alpha=0.5, label='x')
-pyplot.hist(y, bins, alpha=0.5, label='y')
+pyplot.hist(x, bins, alpha=0.5, label='Spending in 2008')
+pyplot.hist(y, bins, alpha=0.5, label='Spending in 2009')
 pyplot.legend(loc='upper right')
+pyplot.title("Comparison of Market Spending in 2008 vs. 2009")
 pyplot.show()
