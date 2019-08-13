@@ -8,6 +8,7 @@ import csv
 import pprint
 import copy
 from matplotlib import pyplot
+import pdb
 
 ### 
 ### Functions (modules)
@@ -22,11 +23,14 @@ from matplotlib import pyplot
 # NOTE: indent using spaces, one indent = 4 * spaces
 #
 
+# @TODO: make two extra fields in the data dictionary (database): for revenue to adjust with and both for 2008 and 2009
+
 #
 # Import data as csv object in numpy
 #
-with open("../data/zainab_data_marketing.csv") as fi:
+with open("../data/zainab_data_revenue_actual.csv") as fi:
     rows = list(csv.reader(fi, delimiter=','))
+
 
 #
 # Parse rows as integers, only keeping numerical data
@@ -50,25 +54,33 @@ for i,row in enumerate(rows):
     money_2009 = float(row[2])
     delta_2008_to_2009 = money_2008 - money_2009
 
-    # @debugging
+    liquidable_2008 = float(row[4])
+    liquidable_2009 = float(row[5])
+
     print("\t"+str(company_name))
     print("\t"+str(money_2008))
     print("\t"+str(money_2009))
-    print("\t"+str(delta_2008_to_2009))
+    print("\t"+str(liquidable_2008))
+    print("\t"+str(liquidable_2009))
 
     try:
         # Accumulate: data via appending to pre-instantiated keys for a given company (superkey)
         data[company_name]["money 2008"].append(money_2008)  
         data[company_name]["money 2009"].append(money_2009)
         data[company_name]["delta"].append(delta_2008_to_2009)
+        data[company_name]["liquidable 2008"].append(liquidable_2008)
+        data[company_name]["liquidable 2009"].append(liquidable_2009)
 
     except KeyError:
         # Try: keep adding subdicts (as values) to the company name (as key), else: initialize dict keys and values as subdicts 
         data[company_name] = {  "money 2008":[money_2008],\
                                 "money 2009":[money_2009],\
-                                "delta":[delta_2008_to_2009]} # delta = money(2008) - money(2009)
+                                "delta":[delta_2008_to_2009],\
+                                "liquidable 2008":[liquidable_2008],\
+                                "liquidable 2009":[liquidable_2009],\
+                                } # delta = money(2008) - money(2009)
 
-
+# @debugging
 
 #
 # Construct the numpy array from the dict datastructure above (so we can input to the wilcoxon rank test and visual functions to get p-value outputs and plotting outputs)
@@ -139,61 +151,52 @@ else:
 
     print("Woops, your p-value is greater than 0.05. The null hypothesis cannot be rejected, given the current alpha setting.")
 
+
+#######################################################################
+
 ##
 ## Plotting the data
 ##
 
 #
-# Histograms: a first glance at our spending data, one for 2008 other for 2009 // see: https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.stats.wilcoxon.html
+# Histograms: a first glance at our Revenue data, one for 2008 other for 2009 // see: https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.stats.wilcoxon.html
 #
 
 """
 # '@DEBUGGING:@DONE:@2019-08-13: we get error: "ImportError: No module named _tkinter, please install the python-tk package", so we need to install python-tk via pip, USAGE: "sudo pip install python-tk"' // @HOWEVER: When trying the above fix we get a bigger error: sudo -H pip install python-tk
-Collecting python-tk
-Exception:
-Traceback (most recent call last):
-  File "/usr/lib/python2.7/dist-packages/pip/basecommand.py", line 215, in main
-    status = self.run(options, args)
-  File "/usr/lib/python2.7/dist-packages/pip/commands/install.py", line 353, in run
-    wb.build(autobuilding=True)
-  File "/usr/lib/python2.7/dist-packages/pip/wheel.py", line 749, in build
-    self.requirement_set.prepare_files(self.finder)
-  File "/usr/lib/python2.7/dist-packages/pip/req/req_set.py", line 380, in prepare_files
-    ignore_dependencies=self.ignore_dependencies))
-  File "/usr/lib/python2.7/dist-packages/pip/req/req_set.py", line 554, in _prepare_file
-    require_hashes
-  File "/usr/lib/python2.7/dist-packages/pip/req/req_install.py", line 278, in populate_link
-    self.link = finder.find_requirement(self, upgrade)
-  File "/usr/lib/python2.7/dist-packages/pip/index.py", line 465, in find_requirement
-    all_candidates = self.find_all_candidates(req.name)
-  File "/usr/lib/python2.7/dist-packages/pip/index.py", line 423, in find_all_candidates
-    for page in self._get_pages(url_locations, project_name):
-  File "/usr/lib/python2.7/dist-packages/pip/index.py", line 568, in _get_pages
-    page = self._get_page(location)
-  File "/usr/lib/python2.7/dist-packages/pip/index.py", line 683, in _get_page
-    return HTMLPage.get_page(link, session=self.session)
-  File "/usr/lib/python2.7/dist-packages/pip/index.py", line 795, in get_page
-    resp.raise_for_status()
-  File "/usr/share/python-wheels/requests-2.18.4-py2.py3-none-any.whl/requests/models.py", line 935, in raise_for_status
-    raise HTTPError(http_error_msg, response=self)
-HTTPError: 404 Client Error: Not Found for url: https://pypi.org/simple/python-tk/
-
 @DONE:@SOLVED: we need to install python-tk via sudo apt-get not using pip!!! <--- USAGE: sudo apt-get install python-tk // USAGE FOR Python3: sudo apt-get install python3-tk
 
 """
-import random
-import numpy
-from matplotlib import pyplot
+# import random
+# import numpy
+# from matplotlib import pyplot
 
-x = [random.gauss(2,1) for _ in range(400)]
-y = [random.gauss(5,0.5) for _ in range(400)]
+# x = [random.gauss(2,1) for _ in range(400)]
+# y = [random.gauss(5,0.5) for _ in range(400)]
 
-bins = numpy.linspace(0, 10, 100)
+# histogram on non-log scale
+# this uses equal bin sizes that gets swarfed by high dynamic range
+bins = np.linspace(0, 10000, 10)
 
-pyplot.hist(x, bins, alpha=0.5, label='Spending behaviour in 2008')
-pyplot.hist(y, bins, alpha=0.5, label='Spending behaviour in 2009')
+pyplot.hist(money_2008_arr, bins, alpha=0.5, label='Revenue in 2008 (in million GBP)')
+pyplot.hist(money_2009_arr, bins, alpha=0.5, label='Revenue in 2009 (in million GBP)')
 pyplot.legend(loc='upper right')
-pyplot.title("Comparison of Market Spending in 2008 vs. 2009")
-pyplot.xlabel("Spending")
-pyplot.ylabel("Frequency ~ PD")
+pyplot.title("Comparison of Revenue in 2008 vs. 2009")
+pyplot.xlabel("Revenue (million GBP)")
+pyplot.ylabel("Frequency")
 pyplot.show()
+
+
+# # histogram on log scale. 
+# # Use non-equal bin sizes, such that they look equal on log scale.
+
+# logbins = np.logspace(np.log10(bins[0]),np.log10(bins[-1]),len(bins))
+
+# pyplot.hist(money_2008_arr, bins, alpha=0.5, label='Revenue behaviour in 2008')
+# pyplot.hist(money_2009_arr, bins, alpha=0.5, label='Revenue behaviour in 2009')
+# pyplot.legend(loc='upper right')
+# pyplot.title("Comparison of Market Revenue in 2008 vs. 2009")
+# pyplot.xlabel("Revenue")
+# pyplot.ylabel("Frequency ~ PD")
+# pyplot.xscale('log')
+# pyplot.show()
