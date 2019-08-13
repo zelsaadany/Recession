@@ -30,7 +30,7 @@
 		    sudo pip install pprint
 		    sudo pip install copy
 		    sudo pip install matplotlib
-   
+
  
  - Operating System. Any operating system should work, but the pipeline was only tested on Ubuntu (version: Artful Aardvark).
 
@@ -39,4 +39,6 @@
 # Notes
 #
 
-@TODO:@ANDY:make sure to tell zainab about ssh keys to save hassle, and show her the p-values and plots when they're done
+@TODO:@ANDY:@2019-08-13: make sure to tell zainab about ssh keys to save hassle, and show her the p-values and plots when they're done
+
+@DEBUGGING:@TODO:@2019-08-13: we get error: "ImportError: No module named _tkinter, please install the python-tk package", so we need to install python-tk via pip, USAGE: "sudo pip install python-tk"
