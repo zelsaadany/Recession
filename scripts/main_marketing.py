@@ -23,13 +23,14 @@ import pdb
 # NOTE: indent using spaces, one indent = 4 * spaces
 #
 
-# @TODO: make two extra fields in the data dictionary (database): for marketing to adjust with and both for 2008 and 2009
+# @TODO: make two extra fields in the data dictionary (database): for revenue to adjust with and both for 2008 and 2009
 
 #
 # Import data as csv object in numpy
 #
 with open("../data/zainab_data_marketing_actual.csv") as fi:
     rows = list(csv.reader(fi, delimiter=','))
+
 
 #
 # Parse rows as integers, only keeping numerical data
@@ -62,6 +63,10 @@ for i,row in enumerate(rows):
     print("\t"+str(liquidable_2008))
     print("\t"+str(liquidable_2009))
 
+    # @1357
+    money_2008_adj = copy.copy(money_2008) / copy.copy(liquidable_2008)
+    money_2009_adj = copy.copy(money_2009) / copy.copy(liquidable_2009)
+    
     try:
         # Accumulate: data via appending to pre-instantiated keys for a given company (superkey)
         data[company_name]["money 2008"].append(money_2008)  
@@ -70,6 +75,10 @@ for i,row in enumerate(rows):
         data[company_name]["liquidable 2008"].append(liquidable_2008)
         data[company_name]["liquidable 2009"].append(liquidable_2009)
 
+        # @1357
+        data[company_name]["money_2008_adj"].append(money_2008_adj)
+        data[company_name]["money_2009_adj"].append(money_2009_adj)
+
     except KeyError:
         # Try: keep adding subdicts (as values) to the company name (as key), else: initialize dict keys and values as subdicts 
         data[company_name] = {  "money 2008":[money_2008],\
@@ -77,6 +86,9 @@ for i,row in enumerate(rows):
                                 "delta":[delta_2008_to_2009],\
                                 "liquidable 2008":[liquidable_2008],\
                                 "liquidable 2009":[liquidable_2009],\
+                                # @1357                                        
+                                "money_2008_adj":[money_2008_adj],\
+                                "money_2009_adj":[money_2009_adj]   
                                 } # delta = money(2008) - money(2009)
 
 # @debugging
@@ -92,21 +104,26 @@ n_companies = copy.copy(i)
 company_names_vec = data.keys()  # since each key maps to a name of a company as str
 money_2008_vec = [data[i]["money 2008"] for i in company_names_vec] # e.g. [[-1944.0], [1493.0], [2430.0], [-1247.0], [-1323.0], [-2007.0], [-2408.0], [-2248.0], [-2402.0], [-1266.0], [901.0], [-3384.0], [1382.0], [-1666.0], [-1653.0], [1087.0], [-3306.0], [-2070.0], [-1441.0], [560.0], [-452.0], [348.0], [273.0], [2142.0], [-1921.0], [-641.0], [-2305.0], [2875.0], [-2024.0], [-1784.0]]
 money_2009_vec = [data[i]["money 2009"] for i in company_names_vec]
-delta_2008_to_2009_vec = [data[i]["delta"] for i in company_names_vec]
+#delta_2008_to_2009_vec = [data[i]["delta"] for i in company_names_vec]
+money_2008_adj_vec = [data[i]["money_2008_adj"] for i in company_names_vec] # e.g. [[-1944.0], [1493.0], [2430.0], [-1247.0], [-1323.0], [-2007.0], [-2408.0], [-2248.0], [-2402.0], [-1266.0], [901.0], [-3384.0], [1382.0], [-1666.0], [-1653.0], [1087.0], [-3306.0], [-2070.0], [-1441.0], [560.0], [-452.0], [348.0], [273.0], [2142.0], [-1921.0], [-641.0], [-2305.0], [2875.0], [-2024.0], [-1784.0]]
+money_2009_adj_vec = [data[i]["money_2009_adj"] for i in company_names_vec]
+
 
 # convert python lists into numpy arrays (1D vector arrays, technically 2D since we need to remove the nested and unecessary list wrappers around each element)
 
 company_names_arr = np.array(company_names_vec)
 money_2008_arr = np.array(money_2008_vec)
 money_2009_arr = np.array(money_2009_vec)
-delta_2008_to_2009_arr = np.array(delta_2008_to_2009_vec)
+#delta_2008_to_2009_arr = np.array(delta_2008_to_2009_vec)
+money_2008_adj_arr = np.array(money_2008_adj_vec) 
+money_2009_adj_arr = np.array(money_2009_adj_vec)
 
 # flatten the lists, since each element i in each and every list (except for company_names_arr) here is a single-element list, e.g. [-1784.0], so flatten to remove unecessary list wrapper 
-
-company_names_arr = np.array(company_names_vec)
 money_2008_arr = money_2008_arr.flatten()
 money_2009_arr = money_2009_arr.flatten()
-delta_2008_to_2009_arr = delta_2008_to_2009_arr.flatten()
+#delta_2008_to_2009_arr = delta_2008_to_2009_arr.flatten()
+money_2008_adj_arr = money_2008_adj_arr.flatten() 
+money_2009_adj_arr = money_2009_adj_arr.flatten()
 
 ##
 ## STATISTICAL TESTING
@@ -120,15 +137,15 @@ delta_2008_to_2009_arr = delta_2008_to_2009_arr.flatten()
 
 # TEST1: Running the test on default settings
 
-T, p = stats.wilcoxon(x=money_2008_arr, y=money_2009_arr, zero_method='wilcox', correction=False)
+T, p = stats.wilcoxon(x=money_2008_adj_arr, y=money_2009_adj_arr, zero_method='wilcox', correction=False)
 
 print((T,p)) # T = 121.0, p = 0.02182... // NOTE: the p-value in the dummy set is significant!? Hilarious..
 
 # TEST2: Running the test on the delta array (where we specify the difference vector as x, only)
 
-T, p = stats.wilcoxon(x=delta_2008_to_2009_arr, y=None, zero_method='wilcox', correction=False)
+# T, p = stats.wilcoxon(x=delta_2008_to_2009_arr, y=None, zero_method='wilcox', correction=False)
 
-print((T,p)) # T = 121.0, p = 0.02182... // NOTE: Brilliant! we obtain exactly the same T and p values, which confirms the behaviour of the wilcoxon package is entirely consistent.
+# print((T,p)) # T = 121.0, p = 0.02182... // NOTE: Brilliant! we obtain exactly the same T and p values, which confirms the behaviour of the wilcoxon package is entirely consistent.
 
 #
 # Summary Print
@@ -158,7 +175,7 @@ else:
 ##
 
 #
-# Histograms: a first glance at our spending data, one for 2008 other for 2009 // see: https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.stats.wilcoxon.html
+# Histograms: a first glance at our Revenue data, one for 2008 other for 2009 // see: https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.stats.wilcoxon.html
 #
 
 """
@@ -166,24 +183,38 @@ else:
 @DONE:@SOLVED: we need to install python-tk via sudo apt-get not using pip!!! <--- USAGE: sudo apt-get install python-tk // USAGE FOR Python3: sudo apt-get install python3-tk
 
 """
-# import random
-# import numpy
-# from matplotlib import pyplot
+import random
+import numpy
+from matplotlib import pyplot
 
 # x = [random.gauss(2,1) for _ in range(400)]
 # y = [random.gauss(5,0.5) for _ in range(400)]
 
-# histogram on non-log scale
-# this uses equal bin sizes that gets swarfed by high dynamic range
-bins = np.linspace(0, 10000, 10)
 
-pyplot.hist(money_2008_arr, bins, alpha=0.5, label='Spending behaviour in 2008 (million GBP)')
-pyplot.hist(money_2009_arr, bins, alpha=0.5, label='Spending behaviour in 2009 (million GBP)')
-pyplot.legend(loc='upper right')
-pyplot.title("Comparison of Marketing Spending in 2008 vs. 2009")
-pyplot.xlabel("Spending (million GBP)")
-pyplot.ylabel("Frequency")
+
+# # histogram on non-log scale
+# # this uses equal bin sizes that gets swarfed by high dynamic range
+# bins = np.linspace(0, 100, 50)
+
+# pyplot.hist(money_2008_adj_arr, bins, alpha=0.5, label='Revenue in 2008 (in million GBP)')
+# pyplot.hist(money_2009_adj_arr, bins, alpha=0.5, label='Revenue in 2009 (in million GBP)')
+# pyplot.legend(loc='upper right')
+# pyplot.title("Comparison of Revenue in 2008 vs. 2009")
+# pyplot.xlabel("Revenue (million GBP)")
+# pyplot.ylabel("Frequency")
+# pyplot.show()
+import math
+
+median_2008 = np.median(money_2008_adj_arr)
+
+median_2009 = np.median(money_2009_adj_arr)
+
+pyplot.boxplot((money_2008_adj_arr,money_2009_adj_arr), notch=None, sym=None, vert=None, whis=None, positions=None, widths=None, patch_artist=None, bootstrap=None, usermedians=None, conf_intervals=None, meanline=False, showmeans=True, showcaps=None, showbox=None, showfliers=False, boxprops=None, labels=["2008","2009"], flierprops=None, medianprops=None, meanprops=None, capprops=None, whiskerprops=None, autorange=False, zorder=None, data=None)
+
+pyplot.title("Comparison of revenue distributions in 2008 vs. 2009")
+pyplot.ylabel("Revenue (million GBP)")
 pyplot.show()
+
 
 
 # # histogram on log scale. 
@@ -191,11 +222,11 @@ pyplot.show()
 
 # logbins = np.logspace(np.log10(bins[0]),np.log10(bins[-1]),len(bins))
 
-# pyplot.hist(money_2008_arr, bins, alpha=0.5, label='Spending behaviour in 2008')
-# pyplot.hist(money_2009_arr, bins, alpha=0.5, label='Spending behaviour in 2009')
+# pyplot.hist(money_2008_arr, bins, alpha=0.5, label='Revenue behaviour in 2008')
+# pyplot.hist(money_2009_arr, bins, alpha=0.5, label='Revenue behaviour in 2009')
 # pyplot.legend(loc='upper right')
-# pyplot.title("Comparison of Market Spending in 2008 vs. 2009")
-# pyplot.xlabel("Spending")
+# pyplot.title("Comparison of Market Revenue in 2008 vs. 2009")
+# pyplot.xlabel("Revenue")
 # pyplot.ylabel("Frequency ~ PD")
 # pyplot.xscale('log')
 # pyplot.show()
