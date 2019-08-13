@@ -1,4 +1,4 @@
-import scipy
+from scipy import stats
 import numpy as np
 import csv
 import pprint
@@ -83,3 +83,24 @@ money_2008_arr = money_2008_arr.flatten()
 money_2009_arr = money_2009_arr.flatten()
 delta_2008_to_2009_arr = delta_2008_to_2009_arr.flatten()
 
+##
+## STATISTICAL TESTING
+##
+
+#
+# Wilcoxon signed rank test, input = money_2008_arr, money_2009_arr --> output = p-value
+#
+
+# USAGE: scipy.stats.wilcoxon(x, y=None, zero_method='wilcox', correction=False)  // see: https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.stats.wilcoxon.html
+
+# TEST1: Running the test on default settings
+
+T, p = stats.wilcoxon(x=money_2008_arr, y=money_2009_arr, zero_method='wilcox', correction=False)
+
+print((T,p)) # T = 121.0, p = 0.02182... // NOTE: the p-value in the dummy set is significant!? Hilarious..
+
+# TEST2: Running the test on the delta array (where we specify the difference vector as x, only)
+
+T, p = stats.wilcoxon(x=delta_2008_to_2009_arr, y=None, zero_method='wilcox', correction=False)
+
+print((T,p)) # T = 121.0, p = 0.02182... // NOTE: Brilliant! we obtain exactly the same T and p values, which confirms the behaviour of the wilcoxon package is entirely consistent.
