@@ -9,20 +9,29 @@ import pandas as pd
 dataset = pd.read_csv('../../data/zainab_data_marketing_actual.csv')   # @TODO:@1451: replace with delta vectors
 X = dataset.iloc[:, 1:2].values    # independent variable OR 2008 salary
 
-revenue_dataset = pd.read_csv('../../data/zainab_data_revenue_actual.csv')   # @TODO:@1634:@DEBUG(possible?) it might be better to create one variable for the marketing dataset and one for revenue so they are not overwriting one another (reference errors)
+dataset = pd.read_csv('../../data/zainab_data_revenue_actual.csv')   # @TODO:@1634:@DEBUG(possible?) it might be better to create one variable for the marketing dataset and one for revenue so they are not overwriting one another (reference errors)
 y = dataset.iloc[:, 3].values      # dependent variable OR 2009 salary
 
 # Splitting the dataset into the Training set and Test set
 from sklearn.cross_validation import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.1, random_state = 0)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 0)
+#
+### ALTERNATIVE 1 {{ 
+## Feature Scaling
+#from sklearn.preprocessing import StandardScaler
+#sc_X = StandardScaler()
+#X_train = sc_X.fit_transform(X_train)
+#X_test = sc_X.transform(X_test)
+#sc_y = StandardScaler()
+#y_train = sc_y.fit_transform(y_train)
+### }} ALTERNATIVE 1
 
+## ALTERNATIVE 1 {{ 
 # Feature Scaling
-from sklearn.preprocessing import StandardScaler
-sc_X = StandardScaler()
-X_train = sc_X.fit_transform(X_train)
-X_test = sc_X.transform(X_test)
-sc_y = StandardScaler()
-y_train = sc_y.fit_transform(y_train)
+X_train = X_train
+X_test = X_test
+## }} ALTERNATIVE 1
+
 
 # Fitting the Regression Model to the dataset
 # Create your regressor here
@@ -34,7 +43,6 @@ regressor.fit(X_train, y_train)
 
 # Predicting a new result
 regressor.predict(6.5)
-
 
 #
 # # @ALTERNATIVE 1: @DONE:@1638:save this plot for the raw data, which works, refer to *_v1*.py for a working version {{  
@@ -55,7 +63,7 @@ def get_index_of_max_value(vec,n):
     
     n_iterations_vec = [i for i in range(0,n,1)]
     
-    max_collection = []
+    outliers = []
     
     for iteration in n_iterations_vec:
         
@@ -65,9 +73,9 @@ def get_index_of_max_value(vec,n):
             
             if j==np.array([ True], dtype=bool):
                 outlier = vec[i]
-                max_collection.append(outlier)
+                outliers.append(outlier)
                 vec.remove(outlier)
-    return max_collection
+    return outliers
 
 def get_index_of_min_value(vec,n):
     """ find the maximum value of a vector and returns it's index """
@@ -76,7 +84,7 @@ def get_index_of_min_value(vec,n):
     
     n_iterations_vec = [i for i in range(0,n,1)]
     
-    max_collection = []
+    outliers = []
     
     for iteration in n_iterations_vec:
         
@@ -86,13 +94,47 @@ def get_index_of_min_value(vec,n):
             
             if j==np.array([ True], dtype=bool):
                 outlier = vec[i]
-                max_collection.append(outlier)
+                outliers.append(outlier)
                 vec.remove(outlier)
-    return max_collection
+    return outliers
+
+##
+## Remove the n-biggest outliers from the dataset
+##
+#
+#X_train_outliers = []
+#
+#for outlier_min in get_index_of_min_value(X_train,1):
+#    X_train_outliers.append(outlier_min)
+#for outlier_max in get_index_of_max_value(X_train,1):
+#    X_train_outliers.append(outlier_max)
+#
+#y_train_outliers = []
+#
+#for outlier_min in get_index_of_min_value(y_train,1):
+#    y_train_outliers.append(outlier_min)
+#for outlier_max in get_index_of_max_value(y_train,1):
+#    y_train_outliers.append(outlier_max)
 
 #
 # Remove the n-biggest outliers from the dataset
 #
+
+how_many_outliers_to_delete = 2
+
+X_outliers = []
+
+for outlier_min in get_index_of_min_value(X,how_many_outliers_to_delete):
+    X_outliers.append(outlier_min)
+for outlier_max in get_index_of_max_value(X,how_many_outliers_to_delete):
+    X_outliers.append(outlier_max)
+
+y_outliers = []
+
+for outlier_min in get_index_of_min_value(y,how_many_outliers_to_delete):
+    y_outliers.append(outlier_min)
+for outlier_max in get_index_of_max_value(y,how_many_outliers_to_delete):
+    y_outliers.append(outlier_max)
 
 
 #
@@ -108,6 +150,5 @@ plt.plot(X_grid, regressor.predict(X_grid), color="b")  # @TODO:@1641: try getti
 #
 
 plt.title("Random Forest Regression")
-plt.xlabel("2008 (?)")
-
-plt.ylabel("2009 (?)")
+plt.xlabel("2008")
+plt.ylabel("2009")
