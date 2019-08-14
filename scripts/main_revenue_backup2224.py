@@ -182,60 +182,56 @@ for path in filepaths:
 
     delta_collection.append(sorted_deltas_vec)
 
-revenue_arr = np.log(np.array(delta_collection[0]))
-market_arr = np.log(np.array(delta_collection[1]))
 
-# pyplot.scatter(revenue_arr,market_arr)
-
-# pyplot.title("Comparison of Marketing Expenditure in 2008 vs. 2009")
-# pyplot.xlabel("Adjusted Marketing Expenditure (million GBP)")
-# pyplot.ylabel("Frequency")
-# pyplot.legend(loc='upper right')
-# pyplot.show()
+plt.scatter(delta_collection[0],delta_collection[1])
 
 
 
-# ##
-# ## STATISTICAL TESTING
-# ##
 
-# #
-# # Wilcoxon signed rank test, input = money_2008_arr, money_2009_arr --> output = p-value
-# #
 
-# # USAGE: scipy.stats.wilcoxon(x, y=None, zero_method='wilcox', correction=False)  // see: https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.stats.wilcoxon.html
+##
+## STATISTICAL TESTING
+##
 
-# # TEST1: Running the test on default settings
+#
+# Wilcoxon signed rank test, input = money_2008_arr, money_2009_arr --> output = p-value
+#
+
+# USAGE: scipy.stats.wilcoxon(x, y=None, zero_method='wilcox', correction=False)  // see: https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.stats.wilcoxon.html
+
+# TEST1: Running the test on default settings
 
 # T, p = stats.wilcoxon(x=marketing_deltas, y=revenue_deltas, zero_method='wilcox', correction=False)
 
 # print((T,p)) # T = 121.0, p = 0.02182... // NOTE: the p-value in the dummy set is significant!? Hilarious..
 
-# # TEST2: Running the test on the delta array (where we specify the difference vector as x, only)
+# TEST2: Running the test on the delta array (where we specify the difference vector as x, only)
 
-# # T, p = stats.wilcoxon(x=delta_2008_to_2009_arr, y=None, zero_method='wilcox', correction=False)
+# T, p = stats.wilcoxon(x=delta_2008_to_2009_arr, y=None, zero_method='wilcox', correction=False)
 
-# # print((T,p)) # T = 121.0, p = 0.02182... // NOTE: Brilliant! we obtain exactly the same T and p values, which confirms the behaviour of the wilcoxon package is entirely consistent.
+# print((T,p)) # T = 121.0, p = 0.02182... // NOTE: Brilliant! we obtain exactly the same T and p values, which confirms the behaviour of the wilcoxon package is entirely consistent.
 
-# #
-# # Summary Print
-# #
+#
+# Summary Print
+#
 
-# print("Wilcoxon signed-rank test: COMPLETE...")
 
-# print("\t"+"Test statistic value computed as: "+str(T))
-# print("\t"+"Pr( T_obs_data[/alpha] > T_null) = p-value computed as: "+str(p))
 
-# print("###########")
-# print("# SUMMARY #")
-# print("###########")
+print("Wilcoxon signed-rank test: COMPLETE...")
 
-# if float(p)<0.05:
+print("\t"+"Test statistic value computed as: "+str(T))
+print("\t"+"Pr( T_obs_data[/alpha] > T_null) = p-value computed as: "+str(p))
 
-#     print("Congratulations, at a critical value (alpha) corresponding to a p-value threshold of 0.05, we can reject H_null (H0). Since your computed p-value of "+str(p)+" it is less than 0.05") 
-# else:
+print("###########")
+print("# SUMMARY #")
+print("###########")
 
-#     print("Woops, your p-value is greater than 0.05. The null hypothesis cannot be rejected, given the current alpha setting.")
+if float(p)<0.05:
+
+    print("Congratulations, at a critical value (alpha) corresponding to a p-value threshold of 0.05, we can reject H_null (H0). Since your computed p-value of "+str(p)+" it is less than 0.05") 
+else:
+
+    print("Woops, your p-value is greater than 0.05. The null hypothesis cannot be rejected, given the current alpha setting.")
 
 
 #############################################################
@@ -276,11 +272,11 @@ from matplotlib import pyplot
 #pyplot.hist(marketing_deltas, alpha=0.5, density=False, label='Marketing Expenditure in 2008 (in million GBP)')
 #pyplot.hist(revenue_deltas, alpha=0.5, density=True,label='Marketing Expenditure in 2009 (in million GBP)')
 
-# pyplot.title("Comparison of Marketing Expenditure in 2008 vs. 2009")
-# pyplot.xlabel("Adjusted Marketing Expenditure (million GBP)")
-# pyplot.ylabel("Frequency")
-# pyplot.legend(loc='upper right')
-# pyplot.show()
+pyplot.title("Comparison of Marketing Expenditure in 2008 vs. 2009")
+pyplot.xlabel("Adjusted Marketing Expenditure (million GBP)")
+pyplot.ylabel("Frequency")
+pyplot.legend(loc='upper right')
+pyplot.show()
 
 
 
